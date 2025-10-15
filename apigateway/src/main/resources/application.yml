@@ -1,0 +1,35 @@
+
+server:
+  port: 8088
+
+spring:
+  main:
+    web-application-type: reactive
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "docker"
+  cloud:
+    gateway:
+      routes:
+        - id: guias_route_local
+          # En local, apunta al servicio dentro de la red de Docker Compose
+          uri: http://guia-service:8080 
+          predicates:
+            - Path=/api/v1/guias/**
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+  cloud:
+    gateway:
+      routes:
+        - id: guias_route_prod
+          # En producción, apunta a la URL pública del servicio de guías
+          uri: https://guia-service.onrender.com 
+          predicates:
+            - Path=/api/v1/guias/**
