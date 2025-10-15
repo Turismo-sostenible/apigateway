@@ -1,0 +1,21 @@
+
+services:
+  - name: api-gateway
+    type: web # Es un servicio web público
+    plan: free # Usa el plan gratuito de Render
+    
+    # Le decimos a Render que use Docker para construir y ejecutar
+    runtime: docker
+    dockerfilePath: ./Dockerfile # Ruta al Dockerfile dentro de este repositorio
+
+    # Opcional: Configuración de despliegue automático
+    autoDeploy: true # Se redespliega automáticamente con cada push a la rama principal
+
+    # Variables de entorno que necesita el API Gateway para funcionar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod # Activa la configuración de producción en tu application.yml
+      
+      
+      - key: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+        sync: false
