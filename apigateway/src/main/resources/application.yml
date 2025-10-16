@@ -8,10 +8,6 @@ spring:
   main:
     web-application-type: reactive
 
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-
 ---
 # ===================================================================
 # PERFIL DE DOCKER (Para desarrollo local)
@@ -29,11 +25,19 @@ spring:
             - Path=/api/v1/guias/**
           filters:
             - StripPrefix=3
-
+            
+        - id: guias_docs_local
+          uri: http://guia-service:8080
+          predicates:
+            - Path=/v3/api-docs/guias_route_local
+          filters:
+            - RewritePath=/v3/api-docs/guias_route_local, /v3/api-docs
+  
 springdoc:
-  group-configs:
-    - group: "Servicio de Guías"
-      paths-to-match: "/api/v1/guias/**"
+  swagger-ui:
+    urls:
+      - name: Servicio de Guías
+        url: /v3/api-docs/guias_route_local
 
 ---
 # ===================================================================
@@ -48,4 +52,4 @@ springdoc:
   swagger-ui:
     urls:
       - name: Servicio de Guías
-        url: /v3/api-docs/guias_route_prod # 
+        url: /v3/api-docs/guias_route_prod
