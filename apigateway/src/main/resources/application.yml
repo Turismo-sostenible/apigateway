@@ -1,4 +1,6 @@
-
+# ===================================================================
+# CONFIGURACIÓN BASE (Común para todos los perfiles)
+# ===================================================================
 server:
   port: 8088
 
@@ -6,7 +8,14 @@ spring:
   main:
     web-application-type: reactive
 
+springdoc:
+  swagger-ui:
+    use-root-path: true
+
 ---
+# ===================================================================
+# PERFIL DE DOCKER (Para desarrollo local)
+# ===================================================================
 spring:
   config:
     activate:
@@ -15,21 +24,28 @@ spring:
     gateway:
       routes:
         - id: guias_route_local
-          # En local, apunta al servicio dentro de la red de Docker Compose
-          uri: http://guia-service:8080 
+          uri: http://guia-service:8080
           predicates:
             - Path=/api/v1/guias/**
+          filters:
+            - StripPrefix=3
+
+springdoc:
+  group-configs:
+    - group: "Servicio de Guías"
+      paths-to-match: "/api/v1/guias/**"
 
 ---
+# ===================================================================
+# PERFIL DE PRODUCCIÓN (Para Render)
+# ===================================================================
 spring:
   config:
     activate:
       on-profile: "prod"
-  cloud:
-    gateway:
-      routes:
-        - id: guias_route_prod
-          # En producción, apunta a la URL pública del servicio de guías
-          uri: https://guia-service.onrender.com 
-          predicates:
-            - Path=/api/v1/guias/**
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Servicio de Guías
+        url: /v3/api-docs/guias_route_prod
