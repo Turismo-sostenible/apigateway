@@ -28,14 +28,11 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        if (path.startsWith("/auth/") || path.startsWith("/users")) {
-            System.out.println("RUTA LIBRE: " + path);
+        if (path.startsWith("/auth/")) {
+            System.out.println("RUTA LIBRE (AUTH): " + path);
             return chain.filter(exchange);
         }
 
-        System.out.println("RUTA PROTEGIDA: " + path);
-
-        
         HttpHeaders headers = request.getHeaders();
         if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
             return onError(exchange, HttpStatus.UNAUTHORIZED);
@@ -45,11 +42,17 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return onError(exchange, HttpStatus.UNAUTHORIZED);
         }
+-
 
-        String token = authHeader.substring(7);
+        if (path.startsWith("/users")) {
+            System.out.println("RUTA PROTEGIDA (USER-SERVICE): " + path + " - Reenviando token...");
+            
+            return chain.filter(exchange);
+        }
 
+        System.out.println("RUTA PROTEGIDA (OTRO SERVICIO): " + path + " - Validando token...");
         try {
-            // 1. Validamos el token
+            String token = authHeader.substring(7);
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(publicKey)
                     .build()
@@ -62,6 +65,7 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
             ServerHttpRequest mutatedRequest = request.mutate()
                     .header("X-User-Id", userId)
                     .header("X-User-Roles", String.join(",", roles))
+                    .removeHeader(HttpHeaders.AUTHORIZATION) 
                     .build();
             
 
@@ -81,6 +85,6 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -1; // Prioridad alta
+        return -1;
     }
 }
