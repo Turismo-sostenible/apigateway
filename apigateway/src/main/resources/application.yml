@@ -4,10 +4,9 @@
 server:
   port: 8088
 
-
+# Lee la variable de entorno JWT_PUBLIC_KEY
 jwt:
-  public:
-    key: ${JWT_PUBLIC_KEY}
+  public-key: ${JWT_PUBLIC_KEY}
 
 spring:
   main:
@@ -24,39 +23,39 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: guias_route_local
-          uri: http://guia-service:8080
+        - id: guias_route_docker
+          uri: http://guia-service:8080 # Nombre de contenedor Docker
           predicates:
             - Path=/api/v1/guias/**
           filters:
             - StripPrefix=3
 
-        # El filtro ve "/auth/**" y lo deja pasar.
-        - id: auth-service
-          uri: lb://login-creaciondeusuarios 
+        - id: auth-service-docker
+          uri: http://login-creaciondeusuarios:8080 # Nombre de contenedor Docker
           predicates:
-            - Path=/auth/** # 
+            - Path=/auth/**
           filters:
             - RewritePath=/auth/(?<segment>.*), /api/auth/$\{segment}
 
-        # Ruta 2: PRIVADA (para /api/users)
-        - id: users-service
+        - id: users-service-docker
+          uri: http://login-creaciondeusuarios:8080 # Nombre de contenedor Docker
           predicates:
-            - Path=/users/** # 
+            - Path=/users/**
           filters:
             - RewritePath=/users/(?<segment>.*), /api/users/$\{segment}
-        - id: guias_docs_local
+        
+        - id: guias_docs_docker
           uri: http://guia-service:8080
           predicates:
-            - Path=/v3/api-docs/guias_route_local
+            - Path=/v3/api-docs/guias_route_docker
           filters:
-            - RewritePath=/v3/api-docs/guias_route_local, /v3/api-docs
-  
+            - RewritePath=/v3/api-docs/guias_route_docker, /v3/api-docs
+
 springdoc:
   swagger-ui:
     urls:
-      - name: Servicio de Guías
-        url: /v3/api-docs/guias_route_local
+      - name: Servicio de Guías (Docker)
+        url: /v3/api-docs/guias_route_docker
 
 ---
 # ===================================================================
@@ -66,7 +65,38 @@ spring:
   config:
     activate:
       on-profile: "prod"
+  cloud:
+    gateway:
+      routes:
+        - id: guias_route_prod
+          uri: ${GUIAS_SERVICE_URL} # Leído de Render
+          predicates:
+            - Path=/api/v1/guias/**
+          filters:
+            - StripPrefix=3
 
+        - id: auth-service-prod
+          uri: ${LOGIN_SERVICE_URL} # Leído de Render
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /api/auth/$\{segment}
+
+        - id: users-service-prod
+          uri: ${LOGIN_SERVICE_URL} # Leído de Render
+          predicates:
+            - Path=/users/**
+          filters:
+            - RewritePath=/users/(?<segment>.*), /api/users/$\{segment}
+        
+        - id: guias_docs_prod
+          uri: ${GUIAS_SERVICE_URL} # Leído de Render
+          predicates:
+            - Path=/v3/api-docs/guias_route_prod
+          filters:
+            - RewritePath=/v3/api-docs/guias_route_prod, /v3/api-docs
+
+# Configuración de Swagger para el perfil 'prod'
 springdoc:
   swagger-ui:
     urls:
