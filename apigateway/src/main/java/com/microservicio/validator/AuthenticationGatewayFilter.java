@@ -33,6 +33,8 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
+        System.out.println("RUTA PROTEGIDA: " + path);
+
         
         HttpHeaders headers = request.getHeaders();
         if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
