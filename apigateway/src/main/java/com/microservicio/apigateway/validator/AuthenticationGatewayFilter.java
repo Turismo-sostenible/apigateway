@@ -42,7 +42,6 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return onError(exchange, HttpStatus.UNAUTHORIZED);
         }
--
 
         if (path.startsWith("/users")) {
             System.out.println("RUTA PROTEGIDA (USER-SERVICE): " + path + " - Reenviando token...");
@@ -65,7 +64,7 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
             ServerHttpRequest mutatedRequest = request.mutate()
                     .header("X-User-Id", userId)
                     .header("X-User-Roles", String.join(",", roles))
-                    .removeHeader(HttpHeaders.AUTHORIZATION) 
+                    .headers(h -> h.remove(HttpHeaders.AUTHORIZATION))
                     .build();
             
 
