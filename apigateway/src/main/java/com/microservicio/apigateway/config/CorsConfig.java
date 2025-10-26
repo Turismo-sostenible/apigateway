@@ -21,6 +21,7 @@ public class CorsConfig {
             "https://frontend-santabarbara-m.vercel.app" // Tu URL de Vercel
         ));
         
+        
         corsConfig.setMaxAge(3600L); // 1 hora
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
