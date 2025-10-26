@@ -4,6 +4,10 @@
 server:
   port: 8088
 
+
+jwt:
+  public-key: ${JWT_PUBLIC_KEY}
+    
 spring:
   main:
     web-application-type: reactive
@@ -26,6 +30,20 @@ spring:
           filters:
             - StripPrefix=3
             
+        # El filtro ve "/auth/**" y lo deja pasar.
+        - id: auth-service
+          uri: lb://login-creaciondeusuarios 
+          predicates:
+            - Path=/auth/** # 
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /api/auth/$\{segment}
+
+        # Ruta 2: PRIVADA (para /api/users)
+        - id: users-service
+          predicates:
+            - Path=/users/** # 
+          filters:
+            - RewritePath=/users/(?<segment>.*), /api/users/$\{segment}
         - id: guias_docs_local
           uri: http://guia-service:8080
           predicates:
