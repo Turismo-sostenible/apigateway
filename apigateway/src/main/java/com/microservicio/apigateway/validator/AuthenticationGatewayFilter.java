@@ -1,4 +1,4 @@
-package com.microservicio.validator;
+package com.microservicio.apigateway.validator;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
