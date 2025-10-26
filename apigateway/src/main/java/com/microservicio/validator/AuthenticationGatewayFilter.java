@@ -1,5 +1,4 @@
 package com.microservicio.validator;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +27,11 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        if (path.startsWith("/auth/")) {
+        if (path.startsWith("/auth/") || path.startsWith("/users/")) {
             return chain.filter(exchange);
         }
 
+        
         HttpHeaders headers = request.getHeaders();
         if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
             return onError(exchange, HttpStatus.UNAUTHORIZED);
@@ -45,6 +45,7 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
         String token = authHeader.substring(7);
 
         try {
+            // 1. Validamos el token
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(publicKey)
                     .build()
@@ -58,14 +59,15 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
                     .header("X-User-Id", userId)
                     .header("X-User-Roles", String.join(",", roles))
                     .build();
+            
 
-            ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
-            return chain.filter(mutatedExchange);
- 
-        } catch (Exception e) {
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
+        }
+        catch (Exception e) {
             return onError(exchange, HttpStatus.UNAUTHORIZED);
         }
     }
+
 
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status) {
         ServerHttpResponse response = exchange.getResponse();
@@ -75,6 +77,6 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -1;
+        return -1; // Prioridad alta
     }
 }
