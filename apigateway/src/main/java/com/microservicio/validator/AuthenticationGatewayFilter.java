@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.security.PublicKey;
 import java.util.List;
 
+
 @Component
 public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
 
@@ -28,6 +29,7 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
 
         if (path.startsWith("/auth/") || path.startsWith("/users")) {
+            System.out.println("RUTA LIBRE: " + path);
             return chain.filter(exchange);
         }
 
