@@ -6,8 +6,9 @@ server:
 
 
 jwt:
-  public-key: ${JWT_PUBLIC_KEY}
-    
+  public:
+    key: ${JWT_PUBLIC_KEY}
+
 spring:
   main:
     web-application-type: reactive
@@ -29,7 +30,7 @@ spring:
             - Path=/api/v1/guias/**
           filters:
             - StripPrefix=3
-            
+
         # El filtro ve "/auth/**" y lo deja pasar.
         - id: auth-service
           uri: lb://login-creaciondeusuarios 
