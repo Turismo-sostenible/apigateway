@@ -27,7 +27,7 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        if (path.startsWith("/auth/") || path.startsWith("/users/")) {
+        if (path.startsWith("/auth/") || path.startsWith("/users")) {
             return chain.filter(exchange);
         }
 
