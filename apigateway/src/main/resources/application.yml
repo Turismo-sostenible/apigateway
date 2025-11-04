@@ -75,6 +75,13 @@ spring:
           filters:
             - StripPrefix=3
 
+        - id: reservas_route_prod
+          uri: ${RESERVAS_SERVICE_URL} # Leído de Render
+          predicates:
+            - Path=/api/v1/reservas/**
+          filters:
+            - StripPrefix=3
+
         - id: auth-service-prod
           uri: ${LOGIN_SERVICE_URL} # Leído de Render
           predicates:
